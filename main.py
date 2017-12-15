@@ -107,11 +107,13 @@ class MyWin(QtWidgets.QMainWindow):
         item2 = self.ui.filesTable.item(index.row(), 1)
         if (item1.background() == ACTIVE()):
             item1.setBackground(DEACTIVE())
-#            item2.setBackground(DEACTIVE())
+            item2.setBackground(DEACTIVE())
+            return
 
         if (item1.background() == DEACTIVE()):
             item1.setBackground(ACTIVE())
-#            item2.setBackground(ACTIVE())
+            item2.setBackground(ACTIVE())
+            return
 
 
     def delItems(self, indexes):
@@ -137,8 +139,9 @@ class MyWin(QtWidgets.QMainWindow):
     def write(self):
         names = []
         for i in range(0, self.ui.filesTable.rowCount()):
-            name = {"path" : self.ui.filesTable.item(i, 0).text(), "name" : self.ui.filesTable.item(i, 1).text()}
-            names.append(name)
+            if (self.ui.filesTable.item(i, 0).background() == ACTIVE()):
+                name = {"path" : self.ui.filesTable.item(i, 0).text(), "name" : self.ui.filesTable.item(i, 1).text()}
+                names.append(name)
         self.logging(self.cdAdapter.write(names))
 
     def totalSize(self):
