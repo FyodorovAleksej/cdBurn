@@ -108,11 +108,13 @@ class MyWin(QtWidgets.QMainWindow):
         if (item1.background() == ACTIVE()):
             item1.setBackground(DEACTIVE())
             item2.setBackground(DEACTIVE())
+            self.logging("Total size: "+ str(self.totalSize()) + " bytes")
             return
 
         if (item1.background() == DEACTIVE()):
             item1.setBackground(ACTIVE())
             item2.setBackground(ACTIVE())
+            self.logging("Total size: "+ str(self.totalSize()) + " bytes")
             return
 
 
@@ -143,6 +145,25 @@ class MyWin(QtWidgets.QMainWindow):
                 name = {"path" : self.ui.filesTable.item(i, 0).text(), "name" : self.ui.filesTable.item(i, 1).text()}
                 names.append(name)
         self.logging(self.cdAdapter.write(names))
+        self.cdAdapter.burnProcess.readyRead.connect(self.writeLogging)
+
+    def writeLogging(self):
+
+        readline = str(self.cdAdapter.burnProcess.readAllStandardOutput()).split("\'")[1]
+        print(readline)
+        if ("Writing:" in readline):
+            readline = readline.split("fifo")[0]
+            readline = readline.split("Writing:")[1]
+            readline = readline.split("s")[1]
+            readline = readline.split(".")[0]
+            self.ui.writeProgressBar.setValue(int(readline))
+        if ("completed successfully" in readline):
+            self.logging("Writing Succesfully")
+            self.ui.writeProgressBar.setValue(0)
+        if ("Written to" in readline):
+            self.logging("Writing Succesfully")
+            self.ui.writeProgressBar.setValue(0)
+
 
     def totalSize(self):
         sum = 0
@@ -168,5 +189,7 @@ if __name__ == "__main__":
     window = MyWin()
     window.show()
 
+    # umount /dev/sr0 & xorriso -outdev /dev/sr0 -blank as_needed map /home/alexey/Music/Bass-Drum-2.wav /files/Bass-Drum-2.wav commit_eject all 2>&1
+    # umount /dev/sr0 & xorriso -outdev /dev/sr0 -blank as_needed map /home/alexey/Music/Bass-Drum-2.wav /sound/Bass-Drum-2.wav commit_eject all 2>&1
     sys.exit(app.exec_())
     exit()
